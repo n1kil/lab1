@@ -3,7 +3,7 @@ from django.http import HttpResponse
 
 
 def index(request):
-    return HttpResponse("<h1>Добро пожаловать в Новостной блог</h1>")
+    return render(request, "index.html")
 
 def about(request):
     return HttpResponse("Об авторах")
