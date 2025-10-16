@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% include "base.html" %}
+<head>
+    <title>Оставить отзыв</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <form method="POST">
+        {% csrf_token %}
+    <table>
+        {{ form }}
+    </table>
+    <input type="submit" value="Send" >
+
+    {% if submitted_data %}
+        <div class="submitted-data">
+            <h3>Ваши данные:</h3>
+            <p><strong>Имя:</strong> {{ submitted_data.name }}</p>
+            <p><strong>Email:</strong> {{ submitted_data.mail }}</p>
+            <p><strong>Сообщение:</strong> {{ submitted_data.message }}</p>
+        </div>
+    {% endif %}
+    
+</body>
