@@ -1,0 +1,13 @@
+body{
+    background-color: white;
+}
+a{
+    font-family: 'Courier New', Courier, monospace;
+    font-size: large;
+    text-align: center;
+    padding: 20px 0;
+}
+h1{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-align: center;
+}

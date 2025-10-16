@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+</head>
+<body>
+    <a href="{% url 'home' %}">На главную</a>
+    <a href="{% url 'about' %}">О блоге</a>
+    <a href="{% url 'contact' %}">Контакты</a>
+</body>
