@@ -6,16 +6,4 @@
 </head>
 <body>
     <h1>Добро пожаловать в Новостной блог!</h1>
-    <p>Доступные статьи сейчас: </p>
-    <ul>
-    {% for article in articles %}
-        <li>
-            <strong>{{ article.title }}</strong>
-            {% if article.date.date == today %}
-            <span> - Новое! </span>
-            {% endif %}
-            - {{ article.date|date:"d.m.Y" }}
-        </li>
-    {% endfor %}
-</ul>
 </body>

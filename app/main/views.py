@@ -2,9 +2,19 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils import timezone
 from .forms import UserForm
-
+from .models import *
 
 def index(request):
+    return render(request, 'index.html')
+
+
+def about(request):
+    return render(request, "about.html")
+
+def contact(request):
+    return render(request, "contact.html")
+
+def articles(request):
     articles = [
         {'title': 'Основы Python', 'date': timezone.datetime(2024, 1, 15)},
         {'title': 'Сегодняшняя статья', 'date': timezone.now()},
@@ -16,17 +26,14 @@ def index(request):
         'articles': articles,
         'today': timezone.now().date()  
     }
-    return render(request, 'index.html', context)
-
-
-def about(request):
-    return render(request, "about.html")
-
-def contact(request):
-    return render(request, "contact.html")
+    return render(request, "articles.html", context)
 
 def news(request, number):
-    return HttpResponse(f"<h1>Статья номер {number}</h1>")
+    return HttpResponse(f"Статья {number}")
+
+
+def create_article(request):
+    return render(request, "create_article.html")
 
 def feedback(request):
     if request.method == "POST":

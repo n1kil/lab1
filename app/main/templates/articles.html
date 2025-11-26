@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+{% include "base.html" %}
+<head>
+    <title>Статьи</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <p>Доступные статьи сейчас: </p>
+    <ul>
+    {% for article in articles %}
+        <li>
+            <strong>{{ article.title }}</strong>
+            {% if article.date.date == today %}
+            <span> - Новое! </span>
+            {% endif %}
+            - {{ article.date|date:"d.m.Y" }}
+        </li>
+    {% endfor %}
+</ul>
+</body>
