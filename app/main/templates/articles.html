@@ -3,19 +3,73 @@
 <head>
     <title>Статьи</title>
     <meta charset="utf-8">
+    <style>
+        .article-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .new-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .create-link {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .create-link:hover {
+            background-color: #0056b3;
+        }
+        .author-name {
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <p>Доступные статьи сейчас: </p>
-    <ul>
-    {% for article in articles %}
-        <li>
-            <strong>{{ article.title }}</strong>
-            {% if article.date.date == today %}
-            <span> - Новое! </span>
-            {% endif %}
-            - {{ article.date|date:"d.m.Y" }}
-        </li>
-    {% endfor %}
-    </ul>
+    <h1>Все статьи</h1>
+    
+    <a href="{% url 'create_article' %}" class="create-link">+ Создать новую статью</a>
+    
+    <p>Доступные статьи сейчас ({{ articles|length }}):</p>
+    
+    {% if articles %}
+        <ul style="list-style-type: none; padding: 0;">
+        {% for article in articles %}
+            <li class="article-item">
+                <strong>{{ article.title }}</strong>
+                {% if article.created_date == today %}
+                    <span class="new-badge">НОВОЕ!</span>
+                {% endif %}
+                <br>
+                <small>
+                    👤 <strong>Автор:</strong> <span class="author-name">{{ article.user.name }}</span> | 
+                    📅 <strong>Дата:</strong> {{ article.created_date|date:"d.m.Y" }}
+                </small>
+                <p style="margin-top: 5px;">{{ article.text|truncatechars:150 }}</p>
+                <small style="color: #666;">ID статьи: {{ article.id }}</small>
+            </li>
+        {% endfor %}
+        </ul>
+        
+        <div style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;">
+            <p><strong>Статистика:</strong> Всего статей: {{ articles|length }}</p>
+        </div>
+    {% else %}
+        <p style="color: #666; font-style: italic; padding: 20px; text-align: center;">
+            Статей пока нет. Создайте первую статью!
+        </p>
+    {% endif %}
 </body>
 </html>
