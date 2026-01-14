@@ -1,45 +1,111 @@
-{% include "base.html" %}
-
-{% block title %}{{ title }}{% endblock %}
-
-{% block content %}
-<div class="container">
-    <h1>{{ title }}</h1>
-    
-    <div class="alert alert-info">
-        {% if title == 'Создать статью' %}
-            Статья будет привязана к случайному автору из базы данных
-        {% else %}
-            Редактирование статьи "{{ article.title }}"
-            <br>
-            <small>Автор: {{ article.user_id.name }}</small>
-        {% endif %}
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>{{ title }}</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'main/css/styles.css' %}">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        .btn-submit {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>{{ title }}</h1>
+        
+        <div class="info-box">
+            {% if title == 'Создать статью' %}
+                Статья будет привязана к случайному автору из базы данных
+            {% else %}
+                Редактирование статьи "<strong>{{ article.title }}</strong>"
+                <br>
+                <small>Автор: {{ article.user.name }}</small>
+            {% endif %}
+        </div>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_title">Заголовок статьи:</label>
+                <input type="text" name="title" id="id_title" 
+                       value="{{ form.title.value|default_if_none:'' }}"
+                       maxlength="30" required>
+                {% if form.title.errors %}
+                    <div style="color: red; margin-top: 5px;">
+                        {{ form.title.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_text">Текст статьи:</label>
+                <textarea name="text" id="id_text" required>{{ form.text.value|default_if_none:'' }}</textarea>
+                {% if form.text.errors %}
+                    <div style="color: red; margin-top: 5px;">
+                        {{ form.text.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                {% if title == 'Создать статью' %}Создать статью{% else %}Сохранить изменения{% endif %}
+            </button>
+            
+            <a href="{% url 'articles' %}" class="btn-cancel">Отмена</a>
+        </form>
     </div>
-    
-    <form method="POST" class="mt-4">
-        {% csrf_token %}
-        
-        <div class="mb-3">
-            {{ form.title.label_tag }}
-            {{ form.title }}
-            {% if form.title.errors %}
-                <div class="text-danger">{{ form.title.errors }}</div>
-            {% endif %}
-        </div>
-        
-        <div class="mb-3">
-            {{ form.text.label_tag }}
-            {{ form.text }}
-            {% if form.text.errors %}
-                <div class="text-danger">{{ form.text.errors }}</div>
-            {% endif %}
-        </div>
-        
-        <button type="submit" class="btn btn-primary">
-            {% if title == 'Создать статью' %}Создать статью{% else %}Сохранить изменения{% endif %}
-        </button>
-        
-        <a href="{% url 'articles' %}" class="btn btn-secondary ms-2">Отмена</a>
-    </form>
-</div>
-{% endblock %}
+</body>
+</html>

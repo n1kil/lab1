@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Удалить статью</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'main/css/styles.css' %}">
+    <style>
+        .delete-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .article-info {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="delete-container">
+        <h1>🗑️ Удалить статью</h1>
+        
+        <div class="warning">
+            <h3>⚠️ Внимание!</h3>
+            <p>Вы собираетесь удалить статью. Это действие нельзя отменить.</p>
+        </div>
+        
+        <div class="article-info">
+            <h2>{{ article.title }}</h2>
+            <p><strong>Автор:</strong> {{ article.user.name }}</p>
+            <p><strong>Дата создания:</strong> {{ article.created_date|date:"d.m.Y" }}</p>
+            <p><strong>Текст:</strong> {{ article.text|truncatechars:200 }}</p>
+        </div>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-danger">Да, удалить статью</button>
+                <a href="{% url 'articles' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

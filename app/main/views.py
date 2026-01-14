@@ -13,13 +13,12 @@ def about(request):
 
 def contact(request):
     return render(request, "contact.html")
+
 def articles(request):
-    # Получаем реальные статьи из базы данных
-    # Используем 'user' вместо 'user_id'
     articles_from_db = Article.objects.select_related('user').all()
     
     context = {
-        'articles': articles_from_db,  # используем реальные статьи
+        'articles': articles_from_db,  
         'today': timezone.now().date()
     }
     return render(request, "articles.html", context)
@@ -60,12 +59,11 @@ def create_article(request):
                 users_list = list(users)
                 random_user = random.choice(users_list)
                 
-                # Используем user вместо user_id
                 article = Article.objects.create(
                     title=title,
                     text=text,
                     created_date=timezone.now().date(),
-                    user=random_user  # меняем на user
+                    user=random_user  
                 )
             else:
                 test_user = User.objects.create(
@@ -78,7 +76,7 @@ def create_article(request):
                     title=title,
                     text=text,
                     created_date=timezone.now().date(),
-                    user=test_user  # меняем на user
+                    user=test_user  
                 )
             
             return redirect('articles')
@@ -89,4 +87,32 @@ def create_article(request):
     return render(request, 'create_article.html', {
         'form': form,
         'title': 'Создать статью'
+    })
+
+def edit_article(request, id):
+    article = get_object_or_404(Article, id=id)
+    
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            form.save()
+            return redirect('articles')
+    else:
+        form = ArticleForm(instance=article)
+    
+    return render(request, 'create_article.html', {
+        'form': form,
+        'title': 'Редактировать статью',
+        'article': article
+    })
+
+def delete_article(request, id):
+    article = get_object_or_404(Article, id=id)
+    
+    if request.method == 'POST':
+        article.delete()
+        return redirect('articles')
+    
+    return render(request, 'delete_article.html', {
+        'article': article
     })
