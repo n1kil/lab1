@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% include "base.html" %}
 <html>
 <head>
     <title>{{ title }}</title>
@@ -19,25 +20,31 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="text"], textarea {
+        input[type="text"], textarea, select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
+            font-family: Arial, sans-serif;
         }
         textarea {
             min-height: 200px;
             resize: vertical;
         }
+        select {
+            height: 40px;
+            background-color: white;
+        }
         .btn-submit {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-top: 10px;
         }
         .btn-submit:hover {
             background-color: #0056b3;
@@ -45,7 +52,7 @@
         .btn-cancel {
             background-color: #6c757d;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 25px;
             text-decoration: none;
             border-radius: 4px;
             display: inline-block;
@@ -59,6 +66,11 @@
             border-radius: 4px;
             margin-bottom: 20px;
         }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -67,44 +79,72 @@
         
         <div class="info-box">
             {% if title == 'Создать статью' %}
-                Статья будет привязана к случайному автору из базы данных
+                <p>📝 Статья будет привязана к случайному автору из базы данных</p>
+                <p>📁 Выберите категорию для новой статьи</p>
             {% else %}
-                Редактирование статьи "<strong>{{ article.title }}</strong>"
-                <br>
-                <small>Автор: {{ article.user.name }}</small>
+                <p>✏️ Редактирование статьи "<strong>{{ article.title }}</strong>"</p>
+                <p><small>Автор: {{ article.user.name }} | Текущая категория: {{ article.get_category_display }}</small></p>
             {% endif %}
         </div>
         
         <form method="POST">
             {% csrf_token %}
             
+            <!-- Заголовок -->
             <div class="form-group">
-                <label for="id_title">Заголовок статьи:</label>
+                <label for="id_title">📌 Заголовок статьи:</label>
                 <input type="text" name="title" id="id_title" 
                        value="{{ form.title.value|default_if_none:'' }}"
-                       maxlength="30" required>
+                       maxlength="30" required
+                       placeholder="Введите заголовок (до 30 символов)">
                 {% if form.title.errors %}
-                    <div style="color: red; margin-top: 5px;">
-                        {{ form.title.errors }}
-                    </div>
+                    <div class="error-message">{{ form.title.errors }}</div>
                 {% endif %}
             </div>
             
+            <!-- Категория (ДОБАВЛЯЕМ ЭТО!) -->
             <div class="form-group">
-                <label for="id_text">Текст статьи:</label>
-                <textarea name="text" id="id_text" required>{{ form.text.value|default_if_none:'' }}</textarea>
-                {% if form.text.errors %}
-                    <div style="color: red; margin-top: 5px;">
-                        {{ form.text.errors }}
-                    </div>
+                <label for="id_category">📁 Категория:</label>
+                <select name="category" id="id_category" required>
+                    <option value="" disabled {% if not form.category.value %}selected{% endif %}>
+                        -- Выберите категорию --
+                    </option>
+                    {% for code, name in form.category.field.choices %}
+                        {% if code %}  <!-- Пропускаем пустое значение -->
+                        <option value="{{ code }}" 
+                                {% if form.category.value == code %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.category.errors %}
+                    <div class="error-message">{{ form.category.errors }}</div>
                 {% endif %}
             </div>
             
-            <button type="submit" class="btn-submit">
-                {% if title == 'Создать статью' %}Создать статью{% else %}Сохранить изменения{% endif %}
-            </button>
+            <!-- Текст статьи -->
+            <div class="form-group">
+                <label for="id_text">📝 Текст статьи:</label>
+                <textarea name="text" id="id_text" required 
+                          placeholder="Введите текст статьи...">{{ form.text.value|default_if_none:'' }}</textarea>
+                {% if form.text.errors %}
+                    <div class="error-message">{{ form.text.errors }}</div>
+                {% endif %}
+            </div>
             
-            <a href="{% url 'articles' %}" class="btn-cancel">Отмена</a>
+            <!-- Кнопки -->
+            <div>
+                <button type="submit" class="btn-submit">
+                    {% if title == 'Создать статью' %}
+                        📄 Создать статью
+                    {% else %}
+                        💾 Сохранить изменения
+                    {% endif %}
+                </button>
+                
+                <a href="{% url 'articles' %}" class="btn-cancel">🚫 Отмена</a>
+            </div>
         </form>
     </div>
 </body>

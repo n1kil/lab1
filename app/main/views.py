@@ -15,11 +15,13 @@ def contact(request):
     return render(request, "contact.html")
 
 def articles(request):
-    articles_from_db = Article.objects.select_related('user').all()
+    articles_list = Article.objects.select_related('user').all().order_by('-created_date')
     
     context = {
-        'articles': articles_from_db,  
-        'today': timezone.now().date()
+        'articles': articles_list,
+        'title': 'Все статьи',
+        'today': timezone.now().date(),
+        'category_choices': Article.CATEGORY_CHOICES,
     }
     return render(request, "articles.html", context)
 
@@ -46,25 +48,31 @@ def feedback(request):
         return render(request, "feedback.html", {"form": userform})
     
 
+# views.py
 def create_article(request):
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
+            # ВАЖНО: form.save() НЕ БУДЕТ РАБОТАТЬ, потому что нет поля user в форме!
+            # Вместо этого создаем статью вручную
+            
             title = form.cleaned_data['title']
             text = form.cleaned_data['text']
+            category = form.cleaned_data['category']  # получаем категорию
             
             users = User.objects.all()
             
             if users.exists():
-                users_list = list(users)
-                random_user = random.choice(users_list)
+                random_user = random.choice(list(users))
                 
                 article = Article.objects.create(
                     title=title,
                     text=text,
+                    category=category,  # добавляем категорию
                     created_date=timezone.now().date(),
-                    user=random_user  
+                    user=random_user
                 )
+                print(f"✅ Создана статья: '{title}' (категория: {category})")
             else:
                 test_user = User.objects.create(
                     name='Тестовый автор',
@@ -75,12 +83,15 @@ def create_article(request):
                 article = Article.objects.create(
                     title=title,
                     text=text,
+                    category=category,  # добавляем категорию
                     created_date=timezone.now().date(),
-                    user=test_user  
+                    user=test_user
                 )
+                print(f"✅ Создана статья с тестовым автором: '{title}'")
             
             return redirect('articles')
-    
+        else:
+            print("❌ Форма невалидна:", form.errors)
     else:
         form = ArticleForm()
     
@@ -116,3 +127,31 @@ def delete_article(request, id):
     return render(request, 'delete_article.html', {
         'article': article
     })
+
+
+
+def articles_by_category(request, category):
+    valid_categories = dict(Article.CATEGORY_CHOICES).keys()
+    
+    if category not in valid_categories:
+        return render(request, 'category_error.html', {
+            'category': category,
+            'valid_categories': dict(Article.CATEGORY_CHOICES),
+            'category_choices': Article.CATEGORY_CHOICES,
+        })
+    
+    articles_list = Article.objects.filter(
+        category=category
+    ).select_related('user').order_by('-created_date')
+    
+    category_name = dict(Article.CATEGORY_CHOICES).get(category, category)
+    
+    context = {
+        'articles': articles_list,
+        'title': f"Статьи: {category_name}",
+        'category': category,
+        'category_name': category_name,
+        'today': timezone.now().date(),
+        'category_choices': Article.CATEGORY_CHOICES,
+    }
+    return render(request, "articles.html", context)

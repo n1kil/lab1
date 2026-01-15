@@ -1,87 +1,102 @@
 <!DOCTYPE html>
-{% include "base.html" %}
 {% load static %}
+{% include "base.html" %}
 <html>
 <head>
-    <title>Статьи</title>
+    <title>{{ title }}</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="{% static 'main/css/styles.css' %}">
     <style>
-        .article-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
+        .category-nav {
+            margin: 20px 0;
         }
-        .btn {
-            padding: 5px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-edit {
-            background-color: #ffc107;
-            color: black;
-        }
-        .btn-delete {
-            background-color: #dc3545;
+        .category-link {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            background-color: #6c757d;
             color: white;
+            text-decoration: none;
+            border-radius: 5px;
         }
-        .btn-edit:hover {
-            background-color: #e0a800;
+        .category-link.active {
+            background-color: #007bff;
         }
-        .btn-delete:hover {
-            background-color: #c82333;
+        .category-link:hover {
+            opacity: 0.8;
+        }
+        .article-category {
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Все статьи</h1>
+    <h1>{{ title }}</h1>
     
-    <a href="{% url 'create_article' %}" class="create-link">+ Создать новую статью</a>
+    <!-- Навигация по категориям -->
+    <div class="category-nav">
+        <a href="{% url 'articles' %}" 
+           class="category-link {% if not category %}active{% endif %}">
+            Все статьи
+        </a>
+        
+        {% for code, name in category_choices %}
+            <a href="{% url 'articles_by_category' code %}" 
+               class="category-link {% if category == code %}active{% endif %}">
+                {{ name }}
+            </a>
+        {% endfor %}
+    </div>
     
-    <p>Доступные статьи сейчас ({{ articles|length }}):</p>
+    <a href="{% url 'create_article' %}" class="create-link">+ Создать статью</a>
     
     {% if articles %}
+        <p>Найдено статей: {{ articles|length }}</p>
+        
         <ul class="article-list">
         {% for article in articles %}
             <li class="article-item">
                 <strong>{{ article.title }}</strong>
+                <span class="article-category">{{ article.get_category_display }}</span>
+                
                 {% if article.created_date == today %}
                     <span class="new-badge">НОВОЕ!</span>
                 {% endif %}
+                
                 <br>
                 <small>
-                    👤 <strong>Автор:</strong> <span class="author-name">{{ article.user.name }}</span> | 
+                    👤 <strong>Автор:</strong> {{ article.user.name }} | 
                     📅 <strong>Дата:</strong> {{ article.created_date|date:"d.m.Y" }}
                 </small>
-                <p style="margin-top: 5px;">{{ article.text|truncatechars:150 }}</p>
                 
+                <p>{{ article.text|truncatechars:150 }}</p>
+                
+                <!-- Кнопки действий -->
                 <div class="article-actions">
                     <a href="{% url 'edit_article' article.id %}" class="btn btn-edit">✏️ Редактировать</a>
                     
                     <form action="{% url 'delete_article' article.id %}" method="POST" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-delete" 
-                                onclick="return confirm('Вы уверены, что хотите удалить эту статью?')">
+                                onclick="return confirm('Удалить статью?')">
                             🗑️ Удалить
                         </button>
                     </form>
                 </div>
-                
-                <small style="color: #666;">ID статьи: {{ article.id }}</small>
             </li>
         {% endfor %}
         </ul>
-        
-        <div class="stat">
-            <p><strong>Статистика:</strong> Всего статей: {{ articles|length }}</p>
-        </div>
     {% else %}
-        <p class="empty-message">
-            Статей пока нет. Создайте первую статью!
-        </p>
+        <div class="empty-message">
+            <h3>{% if category %}В категории "{{ category_name }}" пока нет статей{% else %}Статей пока нет{% endif %}</h3>
+            <a href="{% url 'create_article' %}" class="create-link">
+                Создать {% if category %}статью в этой категории{% else %}первую статью{% endif %}
+            </a>
+        </div>
     {% endif %}
 </body>
 </html>

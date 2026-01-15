@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Категория не найдена</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .error-box {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .category-list {
+            margin-top: 20px;
+        }
+        .category-list a {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-box">
+        <h1>❌ Ошибка</h1>
+        <p>Категория <strong>"{{ category }}"</strong> не существует.</p>
+        
+        <div class="category-list">
+            <p>Доступные категории:</p>
+            <a href="{% url 'articles' %}">Все статьи</a>
+            {% for code, name in valid_categories.items %}
+                <a href="{% url 'articles_by_category' code %}">{{ name }}</a>
+            {% endfor %}
+        </div>
+        
+        <p style="margin-top: 20px;">
+            <a href="{% url 'articles' %}">← Вернуться ко всем статьям</a>
+        </p>
+    </div>
+</body>
+</html>
