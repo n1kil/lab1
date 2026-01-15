@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>{{ article.title }}</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'main/css/styles.css' %}">
+    <style>
+        .article-detail {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .article-header {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .article-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .article-content {
+            line-height: 1.6;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .comment-form {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .comment {
+            border-left: 3px solid #007bff;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 0 5px 5px 0;
+        }
+        .comment-author {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .comment-date {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .comment-text {
+            line-height: 1.5;
+        }
+        .no-comments {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+            font-style: italic;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+        .article-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="article-detail">
+        <a href="{% url 'articles' %}" class="back-link">← Назад к списку статей</a>
+        
+        <div class="article-header">
+            <h1>{{ article.title }}</h1>
+            <div class="article-meta">
+                <span>Автор: {{ article.user.name }}</span> | 
+                <span>{{ article.created_date|date:"d.m.Y" }}</span> | 
+                <span>Категория: {{ article.get_category_display }}</span>
+                {% if article.created_date == today %}
+                    <span class="new-badge">НОВОЕ!</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="article-content">
+            {{ article.text|linebreaks }}
+        </div>
+        
+        <div class="article-actions">
+            <a href="{% url 'edit_article' article.id %}" class="btn btn-edit">✏️ Редактировать статью</a>
+            <form action="{% url 'delete_article' article.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-delete" 
+                        onclick="return confirm('Удалить статью и все комментарии?')">
+                    Удалить статью
+                </button>
+            </form>
+        </div>
+        
+        <div class="comments-section">
+            <h2>Комментарии ({{ comments|length }})</h2>
+            
+            <div class="comment-form">
+                <h3>Добавить комментарий</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="id_author_name">Ваше имя:</label>
+                        <input type="text" name="author_name" id="id_author_name" 
+                               value="{{ form.author_name.value|default_if_none:'' }}"
+                               required maxlength="100">
+                        {% if form.author_name.errors %}
+                            <div style="color: red; font-size: 14px;">
+                                {{ form.author_name.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_text">Текст комментария:</label>
+                        <textarea name="text" id="id_text" required>{{ form.text.value|default_if_none:'' }}</textarea>
+                        {% if form.text.errors %}
+                            <div style="color: red; font-size: 14px;">
+                                {{ form.text.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">📤 Отправить комментарий</button>
+                </form>
+            </div>
+            
+            {% if comments %}
+                <div class="comments-list">
+                    {% for comment in comments %}
+                        <div class="comment">
+                            <div class="comment-author">
+                                {{ comment.author_name }}
+                            </div>
+                            <div class="comment-date">
+                                {{ comment.date|date:"d.m.Y H:i" }}
+                            </div>
+                            <div class="comment-text">
+                                {{ comment.text|linebreaks }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-comments">
+                    <p>Пока нет комментариев. Будьте первым!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

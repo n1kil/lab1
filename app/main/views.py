@@ -1,4 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils import timezone
 from .forms import *
@@ -48,50 +52,15 @@ def feedback(request):
         return render(request, "feedback.html", {"form": userform})
     
 
-# views.py
+@login_required
 def create_article(request):
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
-            # ВАЖНО: form.save() НЕ БУДЕТ РАБОТАТЬ, потому что нет поля user в форме!
-            # Вместо этого создаем статью вручную
-            
-            title = form.cleaned_data['title']
-            text = form.cleaned_data['text']
-            category = form.cleaned_data['category']  # получаем категорию
-            
-            users = User.objects.all()
-            
-            if users.exists():
-                random_user = random.choice(list(users))
-                
-                article = Article.objects.create(
-                    title=title,
-                    text=text,
-                    category=category,  # добавляем категорию
-                    created_date=timezone.now().date(),
-                    user=random_user
-                )
-                print(f"✅ Создана статья: '{title}' (категория: {category})")
-            else:
-                test_user = User.objects.create(
-                    name='Тестовый автор',
-                    email='test@example.com',
-                    hashed_password='test123',
-                    created_date=timezone.now().date()
-                )
-                article = Article.objects.create(
-                    title=title,
-                    text=text,
-                    category=category,  # добавляем категорию
-                    created_date=timezone.now().date(),
-                    user=test_user
-                )
-                print(f"✅ Создана статья с тестовым автором: '{title}'")
-            
+            article = form.save(commit=False)
+            article.user = request.user  
+            article.save()
             return redirect('articles')
-        else:
-            print("❌ Форма невалидна:", form.errors)
     else:
         form = ArticleForm()
     
@@ -100,6 +69,7 @@ def create_article(request):
         'title': 'Создать статью'
     })
 
+@login_required  
 def edit_article(request, id):
     article = get_object_or_404(Article, id=id)
     
@@ -117,6 +87,7 @@ def edit_article(request, id):
         'article': article
     })
 
+@login_required
 def delete_article(request, id):
     article = get_object_or_404(Article, id=id)
     
@@ -155,3 +126,67 @@ def articles_by_category(request, category):
         'category_choices': Article.CATEGORY_CHOICES,
     }
     return render(request, "articles.html", context)
+
+
+
+def article_detail(request, id):
+    """Страница статьи с комментариями"""
+    article = get_object_or_404(Article, id=id)
+    comments = article.comments.all()  
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.article = article  
+            comment.save()
+            return redirect('article_detail', id=article.id)
+    else:
+        form = CommentForm()
+    
+    context = {
+        'article': article,
+        'comments': comments,
+        'form': form,
+        'today': timezone.now().date()
+    }
+    return render(request, 'article_detail.html', context)
+
+
+
+def register_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        
+        if password1 != password2:
+            return render(request, 'register.html', {'error': 'Пароли не совпадают'})
+        
+        try:
+            user = User.objects.create_user(username=username, password=password1)
+            login(request, user)
+            return redirect('articles')
+        except:
+            return render(request, 'register.html', {'error': 'Пользователь уже существует'})
+    
+    return render(request, 'register.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('articles')
+        else:
+            return render(request, 'login.html', {'error': 'Неверные данные'})
+    
+    return render(request, 'login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('articles')

@@ -18,4 +18,12 @@
     <p></p>
     <a href="{% url 'feedback' %}">Оставить отзыв</a>
     <p></p>
+    {% if user.is_authenticated %}
+        <strong>{{ user.username }}</strong>  
+        <a href="{% url 'logout' %}">Выйти</a>
+    {% else %}
+        <a href="{% url 'login' %}">Войти</a>  
+        <p></p>
+        <a href="{% url 'register' %}">Регистрация</a>
+    {% endif %}
 </body>

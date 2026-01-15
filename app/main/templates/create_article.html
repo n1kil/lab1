@@ -79,10 +79,10 @@
         
         <div class="info-box">
             {% if title == 'Создать статью' %}
-                <p>📝 Статья будет привязана к случайному автору из базы данных</p>
-                <p>📁 Выберите категорию для новой статьи</p>
+                <p>Статья будет привязана к случайному автору из базы данных</p>
+                <p>Выберите категорию для новой статьи</p>
             {% else %}
-                <p>✏️ Редактирование статьи "<strong>{{ article.title }}</strong>"</p>
+                <p>Редактирование статьи "<strong>{{ article.title }}</strong>"</p>
                 <p><small>Автор: {{ article.user.name }} | Текущая категория: {{ article.get_category_display }}</small></p>
             {% endif %}
         </div>
@@ -90,9 +90,9 @@
         <form method="POST">
             {% csrf_token %}
             
-            <!-- Заголовок -->
+
             <div class="form-group">
-                <label for="id_title">📌 Заголовок статьи:</label>
+                <label for="id_title">Заголовок статьи:</label>
                 <input type="text" name="title" id="id_title" 
                        value="{{ form.title.value|default_if_none:'' }}"
                        maxlength="30" required
@@ -102,15 +102,14 @@
                 {% endif %}
             </div>
             
-            <!-- Категория (ДОБАВЛЯЕМ ЭТО!) -->
             <div class="form-group">
-                <label for="id_category">📁 Категория:</label>
+                <label for="id_category">Категория:</label>
                 <select name="category" id="id_category" required>
                     <option value="" disabled {% if not form.category.value %}selected{% endif %}>
                         -- Выберите категорию --
                     </option>
                     {% for code, name in form.category.field.choices %}
-                        {% if code %}  <!-- Пропускаем пустое значение -->
+                        {% if code %} 
                         <option value="{{ code }}" 
                                 {% if form.category.value == code %}selected{% endif %}>
                             {{ name }}
@@ -123,9 +122,8 @@
                 {% endif %}
             </div>
             
-            <!-- Текст статьи -->
             <div class="form-group">
-                <label for="id_text">📝 Текст статьи:</label>
+                <label for="id_text">Текст статьи:</label>
                 <textarea name="text" id="id_text" required 
                           placeholder="Введите текст статьи...">{{ form.text.value|default_if_none:'' }}</textarea>
                 {% if form.text.errors %}
@@ -133,17 +131,16 @@
                 {% endif %}
             </div>
             
-            <!-- Кнопки -->
             <div>
                 <button type="submit" class="btn-submit">
                     {% if title == 'Создать статью' %}
-                        📄 Создать статью
+                        Создать статью
                     {% else %}
-                        💾 Сохранить изменения
+                        Сохранить изменения
                     {% endif %}
                 </button>
                 
-                <a href="{% url 'articles' %}" class="btn-cancel">🚫 Отмена</a>
+                <a href="{% url 'articles' %}" class="btn-cancel">Отмена</a>
             </div>
         </form>
     </div>

@@ -5,7 +5,7 @@
 <head>
     <title>{{ title }}</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="{% static 'main/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'main/static/css/styles.css' %}">
     <style>
         .category-nav {
             margin: 20px 0;
@@ -37,7 +37,6 @@
 <body>
     <h1>{{ title }}</h1>
     
-    <!-- Навигация по категориям -->
     <div class="category-nav">
         <a href="{% url 'articles' %}" 
            class="category-link {% if not category %}active{% endif %}">
@@ -60,7 +59,9 @@
         <ul class="article-list">
         {% for article in articles %}
             <li class="article-item">
-                <strong>{{ article.title }}</strong>
+                <a href="{% url 'article_detail' article.id %}" style="text-decoration: none; color: inherit;">
+                    <strong>{{ article.title }}</strong>
+                </a>
                 <span class="article-category">{{ article.get_category_display }}</span>
                 
                 {% if article.created_date == today %}
@@ -69,13 +70,12 @@
                 
                 <br>
                 <small>
-                    👤 <strong>Автор:</strong> {{ article.user.name }} | 
-                    📅 <strong>Дата:</strong> {{ article.created_date|date:"d.m.Y" }}
+                    <strong>Автор:</strong> {{ article.user.name }} | 
+                    <strong>Дата:</strong> {{ article.created_date|date:"d.m.Y" }}
                 </small>
                 
                 <p>{{ article.text|truncatechars:150 }}</p>
                 
-                <!-- Кнопки действий -->
                 <div class="article-actions">
                     <a href="{% url 'edit_article' article.id %}" class="btn btn-edit">✏️ Редактировать</a>
                     
@@ -83,7 +83,7 @@
                         {% csrf_token %}
                         <button type="submit" class="btn btn-delete" 
                                 onclick="return confirm('Удалить статью?')">
-                            🗑️ Удалить
+                            Удалить
                         </button>
                     </form>
                 </div>
