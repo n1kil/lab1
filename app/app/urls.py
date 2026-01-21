@@ -1,5 +1,6 @@
 from main import views
 from django.urls import path
+from main import api_views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -17,4 +18,8 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+
+
+    path('api/articles/', api_views.articles_api, name='api_articles'),
+    path('api/articles/<int:id>/', api_views.article_detail_api, name='api_article_detail'),
 ]

@@ -131,7 +131,7 @@
         </div>
         
         <div class="article-actions">
-            <a href="{% url 'edit_article' article.id %}" class="btn btn-edit">✏️ Редактировать статью</a>
+            <a href="{% url 'edit_article' article.id %}" class="btn btn-edit">Редактировать статью</a>
             <form action="{% url 'delete_article' article.id %}" method="POST" style="display: inline;">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-delete" 

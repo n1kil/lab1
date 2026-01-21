@@ -1,3 +1,6 @@
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
@@ -7,6 +10,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from .forms import *
 from .models import *
+from .serializers import *
 import random
 
 def index(request):
@@ -130,7 +134,6 @@ def articles_by_category(request, category):
 
 
 def article_detail(request, id):
-    """Страница статьи с комментариями"""
     article = get_object_or_404(Article, id=id)
     comments = article.comments.all()  
     
