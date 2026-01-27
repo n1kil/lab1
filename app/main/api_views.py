@@ -48,8 +48,38 @@ def articles_api(request):
     )
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
 def article_detail_api(request, id):
+
     article = get_object_or_404(Article, id=id)
-    serializer = ArticleSerializer(article)
-    return Response(serializer.data)
+
+    if request.method == 'GET':
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = ArticleSerializer(
+            article,
+            data=request.data,
+            partial=False  
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    'status': 'success',
+                    'message': 'Статья обновлена',
+                    'article': serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            {
+                'status': 'error',
+                'errors': serializer.errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
