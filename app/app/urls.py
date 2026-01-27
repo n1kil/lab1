@@ -22,4 +22,6 @@ urlpatterns = [
 
     path('api/articles/', api_views.articles_api, name='api_articles'),
     path('api/articles/<int:id>/', api_views.article_detail_api, name='api_article_detail'),
+    path('api/articles/category/<str:category>/', api_views.articles_by_category_api, name='api_articles_by_category'),
+    path('api/articles/sort/date/', api_views.article_sorted_by_date_api, name="article_sorted_by_date_api")
 ]

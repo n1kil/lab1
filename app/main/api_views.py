@@ -48,7 +48,43 @@ def articles_api(request):
     )
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET'])
+def articles_by_category_api(request, category):
+    valid_categories = dict(Article.CATEGORY_CHOICES).keys()
+
+    if category not in valid_categories:
+        return Response(
+            {
+                'status': 'error',
+                'message': 'Неверная категория',
+                'valid_categories': list(valid_categories)
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    articles = (
+        Article.objects
+        .filter(category=category)
+        .select_related('user')
+        .order_by('-created_date')
+    )
+
+    serializer = ArticleSerializer(articles, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def article_sorted_by_date_api(request):
+    articles = (
+        Article.objects
+        .order_by('-created_date')
+        .select_related('user')
+    )
+    serializer = ArticleSerializer(articles, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([AllowAny])
 def article_detail_api(request, id):
 
@@ -83,3 +119,7 @@ def article_detail_api(request, id):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+    
+    elif request.method == 'DELETE':
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

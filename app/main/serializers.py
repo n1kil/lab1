@@ -60,8 +60,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         
         return value
     
-    
-    
     def validate(self, data):
         return data
    
