@@ -22,7 +22,7 @@ class Article(models.Model):
     
     title = models.CharField(max_length=30)
     text = models.TextField()
-    created_date = models.DateField(default=timezone.now)
+    created_date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         'auth.User', 
         on_delete=models.CASCADE,

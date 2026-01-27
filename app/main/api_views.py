@@ -1,33 +1,55 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from django.utils import timezone
+from rest_framework.permissions import AllowAny
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 from .models import Article
 from .serializers import ArticleSerializer
 
-@api_view(['GET'])
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def articles_api(request):
-    articles_list = Article.objects.select_related('user').all().order_by('-created_date')
-    
-    serializer = ArticleSerializer(
-        articles_list, 
-        many=True,
-        context = {
-            'articles': articles_list,
-            'title': 'Все статьи',
-            'today': timezone.now().date(),
-            'category_choices': Article.CATEGORY_CHOICES,
-        }
+
+    if request.method == 'GET':
+        articles = Article.objects.select_related('user').order_by('-created_date')
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data)
+
+    serializer = ArticleSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        return Response(
+            {
+                'status': 'error',
+                'errors': serializer.errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        user = User.objects.get(username='aaa')
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Пользователь aaa не найден'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    article = serializer.save(user=user)
+
+    return Response(
+        {
+            'status': 'success',
+            'message': 'Статья успешно создана',
+            'article': ArticleSerializer(article).data
+        },
+        status=status.HTTP_201_CREATED
     )
-    return Response(serializer.data)
 
 
 @api_view(['GET'])
 def article_detail_api(request, id):
-    
     article = get_object_or_404(Article, id=id)
-    
     serializer = ArticleSerializer(article)
-    
     return Response(serializer.data)
-    
