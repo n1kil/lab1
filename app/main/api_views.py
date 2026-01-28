@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from .models import Article, Comment
@@ -10,7 +10,7 @@ from .serializers import ArticleSerializer, CommentSerializer
 # Статьи
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def articles_api(request):
 
     if request.method == 'GET':
@@ -50,6 +50,7 @@ def articles_api(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def articles_by_category_api(request, category):
     valid_categories = dict(Article.CATEGORY_CHOICES).keys()
 
@@ -75,6 +76,7 @@ def articles_by_category_api(request, category):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def article_sorted_by_date_api(request):
     articles = (
         Article.objects
@@ -86,7 +88,7 @@ def article_sorted_by_date_api(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def article_detail_api(request, id):
 
     article = get_object_or_404(Article, id=id)
@@ -128,6 +130,7 @@ def article_detail_api(request, id):
 # Комменты
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def comments_api(request):
 
     if request.method == 'GET':
@@ -159,6 +162,7 @@ def comments_api(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def comment_detail_api(request, id):
     comment = get_object_or_404(Comment, id=id)
 

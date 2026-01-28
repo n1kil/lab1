@@ -2,6 +2,8 @@ from main import views
 from django.urls import path
 from main import api_views
 from django.contrib.auth import views as auth_views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 
 urlpatterns = [
     path('', views.index, name="home"),
@@ -25,5 +27,9 @@ urlpatterns = [
     path('api/articles/category/<str:category>/', api_views.articles_by_category_api, name='api_articles_by_category'),
     path('api/articles/sort/date/', api_views.article_sorted_by_date_api, name="article_sorted_by_date_api"),
     path('api/comment/', api_views.comments_api, name='api_comments'),
-    path('api/comment/<int:id>/', api_views.comment_detail_api, name="api_comment_detail")
+    path('api/comment/<int:id>/', api_views.comment_detail_api, name="api_comment_detail"),
+
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
