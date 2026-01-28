@@ -127,21 +127,78 @@ def article_detail_api(request, id):
 
 # Комменты
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def comments_api(request):
-    comments = (
-        Comment.objects
-        .select_related('article')
-        .all()
-        .order_by('-date')
-    )
 
-    serializer = CommentSerializer(comments, many=True)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        comments = Comment.objects.select_related('article').all().order_by('-date')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = CommentSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    'status': 'success',
+                    'message': 'Комментарий создан',
+                    'comment': serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            {
+                'status': 'error',
+                'errors': serializer.errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'DELETE'])
 def comment_detail_api(request, id):
     comment = get_object_or_404(Comment, id=id)
-    serializer = CommentSerializer(comment)
-    return Response(serializer.data)
+
+
+    if request.method == 'GET':
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+
+
+    elif request.method == 'PUT':
+        serializer = CommentSerializer(
+            comment,
+            data=request.data,
+            partial=False
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    'status': 'success',
+                    'message': 'Комментарий обновлён',
+                    'comment': serializer.data
+                }
+            )
+
+        return Response(
+            {
+                'status': 'error',
+                'errors': serializer.errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(
+            {
+                'status': 'success',
+                'message': 'Комментарий удалён'
+            },
+            status=status.HTTP_204_NO_CONTENT
+        )

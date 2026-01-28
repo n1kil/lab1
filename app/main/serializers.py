@@ -66,10 +66,6 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    article_title = serializers.CharField(
-        source='article.title',
-        read_only=True
-    )
 
     class Meta:
         model = Comment
@@ -77,8 +73,32 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'text',
             'author_name',
-            'date',
             'article',
-            'article_title',
+            'date',
         )
-        read_only_fields = ('id', 'date', 'article_title')
+        read_only_fields = ('id', 'date')
+
+    def validate_text(self, value):
+        if len(value) < 3:
+            raise serializers.ValidationError(
+                'Комментарий должен содержать минимум 3 символа'
+            )
+        if len(value) > 1000:
+            raise serializers.ValidationError(
+                'Комментарий не должен превышать 1000 символов'
+            )
+        return value
+
+    def validate_author_name(self, value):
+        if len(value) < 2:
+            raise serializers.ValidationError(
+                'Имя автора должно содержать минимум 2 символа'
+            )
+        return value
+
+    def validate_article(self, value):
+        if not Article.objects.filter(id=value.id).exists():
+            raise serializers.ValidationError(
+                'Статья с таким ID не существует'
+            )
+        return value
