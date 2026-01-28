@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Article
+from .models import Article, Comment
 
 class ArticleSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(
@@ -63,3 +63,22 @@ class ArticleSerializer(serializers.ModelSerializer):
     def validate(self, data):
         return data
    
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    article_title = serializers.CharField(
+        source='article.title',
+        read_only=True
+    )
+
+    class Meta:
+        model = Comment
+        fields = (
+            'id',
+            'text',
+            'author_name',
+            'date',
+            'article',
+            'article_title',
+        )
+        read_only_fields = ('id', 'date', 'article_title')

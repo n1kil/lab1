@@ -23,5 +23,7 @@ urlpatterns = [
     path('api/articles/', api_views.articles_api, name='api_articles'),
     path('api/articles/<int:id>/', api_views.article_detail_api, name='api_article_detail'),
     path('api/articles/category/<str:category>/', api_views.articles_by_category_api, name='api_articles_by_category'),
-    path('api/articles/sort/date/', api_views.article_sorted_by_date_api, name="article_sorted_by_date_api")
+    path('api/articles/sort/date/', api_views.article_sorted_by_date_api, name="article_sorted_by_date_api"),
+    path('api/comment/', api_views.comments_api, name='api_comments'),
+    path('api/comment/<int:id>/', api_views.comment_detail_api, name="api_comment_detail")
 ]

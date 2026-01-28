@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from .models import Article
-from .serializers import ArticleSerializer
+from .models import Article, Comment
+from .serializers import ArticleSerializer, CommentSerializer
 
+# Статьи
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
@@ -123,3 +124,24 @@ def article_detail_api(request, id):
     elif request.method == 'DELETE':
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Комменты
+
+@api_view(['GET'])
+def comments_api(request):
+    comments = (
+        Comment.objects
+        .select_related('article')
+        .all()
+        .order_by('-date')
+    )
+
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def comment_detail_api(request, id):
+    comment = get_object_or_404(Comment, id=id)
+    serializer = CommentSerializer(comment)
+    return Response(serializer.data)
