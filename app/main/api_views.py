@@ -134,7 +134,15 @@ def article_detail_api(request, id):
 def comments_api(request):
 
     if request.method == 'GET':
-        comments = Comment.objects.select_related('article').all().order_by('-date')
+        article_id = request.query_params.get('article', None)
+
+        if article_id:
+            # Если передан параметр `article`, фильтруем комментарии по статье
+            comments = Comment.objects.filter(article__id=article_id).order_by('-date')
+        else:
+            # Если не передан параметр, возвращаем все комментарии
+            comments = Comment.objects.all().order_by('-date')
+
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
 

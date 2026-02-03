@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import api from '../api/axios'
+import { Link } from 'react-router-dom'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -24,6 +25,12 @@ export default function Login() {
   }
 
   return (
+    <div>
+      <button>
+        <Link to="/">На главную</Link>
+      </button>
+
+
     <form onSubmit={handleSubmit}>
       <h2>Вход</h2>
 
@@ -44,5 +51,7 @@ export default function Login() {
 
       {error && <p style={{color: 'red'}}>{error}</p>}
     </form>
+    </div>
+    
   )
 }
