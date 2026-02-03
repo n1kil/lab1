@@ -29,6 +29,8 @@ urlpatterns = [
     path('api/comment/', api_views.comments_api, name='api_comments'),
     path('api/comment/<int:id>/', api_views.comment_detail_api, name="api_comment_detail"),
 
+    path('api/register/', api_views.register_user, name="register_user"),
+    
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

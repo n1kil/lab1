@@ -27,7 +27,7 @@ export default function Login() {
   return (
     <div>
       <button>
-        <Link to="/">На главную</Link>
+      <Link to="/">На главную</Link>
       </button>
 
 
